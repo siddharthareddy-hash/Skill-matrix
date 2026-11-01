@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ company.name|default("Company") }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ company.name }}</h1>
+  <p>{{ company.industry }}</p>
+
+  <h2>Roles</h2>
+  <a class="btn" href="{{ url_for('add_role', company_id=company.id) }}">+ Add Role</a>
+
+  {% if company.roles %}
+    <table>
+      <tr><th>Title</th><th></th></tr>
+      {% for role in company.roles %}
+      <tr>
+        <td><a href="{{ url_for('analyzer', role_id=role.id) }}">{{ role.title }}</a></td>
+        <td>
+        <form method="POST" action="{{ url_for('delete_role', company_id=company.id, role_id=role.id) }}">
+<a href="{{ url_for('upload_resume', role_id=r.id) }}">📄 Upload Resume</a>
+
+
+            <button class="btn-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No roles yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

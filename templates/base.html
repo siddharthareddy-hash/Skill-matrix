@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SkillMatrix{% endblock %}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; }
+    nav { background: #1e3a5f; padding: 14px 24px; display: flex; gap: 22px; align-items: center; }
+    nav .brand { color: #fff; font-weight: 700; font-size: 1.2rem; margin-right: auto; text-decoration: none; }
+    nav a { color: #cfd8e3; text-decoration: none; font-size: 0.95rem; }
+    nav a:hover { color: #fff; }
+    .container { max-width: 960px; margin: 30px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 10px; padding: 24px; margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    h1 { font-size: 1.5rem; margin-bottom: 16px; color: #1e3a5f; }
+    h2 { font-size: 1.15rem; margin-bottom: 12px; }
+    label { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 0.9rem; }
+    input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc;
+      border-radius: 6px; font-size: 0.95rem; }
+    button, .btn { display: inline-block; background: #1e3a5f; color: #fff; border: none;
+      padding: 10px 18px; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+      text-decoration: none; margin-top: 14px; }
+    button:hover, .btn:hover { background: #2c5282; }
+    .btn-danger { background: #b23b3b; }
+    .btn-danger:hover { background: #d14a4a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e5e8ec; font-size: 0.92rem; }
+    th { color: #555; font-size: 0.82rem; text-transform: uppercase; }
+    .flash { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 0.92rem; }
+    .flash.success { background: #e2f2e2; color: #1e6b1e; }
+    .flash.error { background: #fbe4e4; color: #a11b1b; }
+    .empty { color: #777; font-style: italic; padding: 12px 0; }
+    .score { font-size: 2.4rem; font-weight: 700; color: #1e3a5f; }
+    .tag { display: inline-block; background: #e8eef5; color: #1e3a5f; padding: 4px 10px;
+      border-radius: 12px; margin: 3px 3px 3px 0; font-size: 0.85rem; }
+    .missing { background: #fbe4e4; color: #a11b1b; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="brand" href="{{ url_for('dashboard') }}">SkillMatrix</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('dashboard') }}">Companies</a>
+      <a href="{{ url_for('analyzer') }}">Analyzer</a>
+      <a href="{{ url_for('history') }}">My Analyses</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+      <a href="{{ url_for('register') }}">Register</a>
+    {% endif %}
+  </nav>
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

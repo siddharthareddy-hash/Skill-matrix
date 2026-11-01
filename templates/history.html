@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>📜 My Analyses</h1>
+
+{% for a in items %}
+    <div class="card">
+        <p>
+            <strong>{{ a.role.title }}</strong>
+            @ {{ a.role.company.name }}
+            — <span class="score">{{ a.score }}% match</span>
+        </p>
+        <p>
+            <a href="{{ url_for('upload', role_id=a.role.id) }}">Upload resume for this role</a>
+        </p>
+    </div>
+{% else %}
+    <p>No analyses yet. Head to the <a href="{{ url_for('analyzer') }}">Analyzer</a> to create one.</p>
+{% endfor %}
+
+{% endblock %}

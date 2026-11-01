@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Skill Analyzer{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Skill Analyzer</h2>
+
+  <label>Company</label><br>
+  <select id="company" style="width:100%">
+    <option value="">-- select company --</option>
+    {% for c in companies %}
+      <option value="{{ c.id }}" {% if c.id == pre_company %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <label>Role</label><br>
+  <select id="role" style="width:100%" disabled>
+    <option value="">-- select role --</option>
+  </select><br><br>
+
+  <label>Your skills (comma-separated)</label><br>
+  <input type="text" id="skills" value="{{ current_user.skills or '' }}"
+         style="width:100%" placeholder="e.g. Python, SQL, Git"><br><br>
+
+  <button id="analyzeBtn" type="button">🔍 Analyze</button>
+
+  <div id="result" style="display:none; margin-top:20px;">
+    <h3 id="roleName"></h3>
+    <div style="font-size:2em;">Score: <b id="score"></b>%</div>
+    <h4>✅ Matched</h4><p id="matched"></p>
+    <h4>❌ Missing</h4><p id="missing"></p>
+    <h4>🗺️ Roadmap</h4><ul id="roadmap"></ul>
+  </div>
+</div>
+
+<script>
+const companySel = document.getElementById("company");
+const roleSel = document.getElementById("role");
+const PRE_COMPANY = {{ pre_company or 'null' }};
+const PRE_ROLE = {{ pre_role or 'null' }};
+
+async function loadRoles(companyId, preRole) {
+  roleSel.innerHTML = '<option value="">-- select role --</option>';
+  roleSel.disabled = true;
+  if (!companyId) return;
+  const res = await fetch(`/api/company/${companyId}/roles`);
+  const roles = await res.json();
+  for (const r of roles) {
+    const opt = document.createElement("option");
+    opt.value = r.id;
+    opt.textContent = r.title;
+    roleSel.appendChild(opt);
+  }
+  if (preRole) roleSel.value = String(preRole);
+  roleSel.disabled = false;
+}
+
+companySel.addEventListener("change", () => loadRoles(companySel.value, null));
+
+if (PRE_COMPANY) {
+  loadRoles(PRE_COMPANY, PRE_ROLE);
+}
+
+document.getElementById("analyzeBtn").addEventListener("click", async () => {
+  const role_id = roleSel.value;
+  const skills = document.getElementById("skills").value;
+  if (!role_id) { alert("Select a role first."); return; }
+  const res = await fetch("/api/analyze", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({role_id: parseInt(role_id), skills: skills})
+  });
+  if (!res.ok) { alert("Analysis failed."); return; }
+  const data = await res.json();
+  document.getElementById("roleName").textContent = data.role;
+  document.getElementById("score").textContent = data.match_score;
+  document.getElementById("matched").textContent = data.matched.join(", ") || "None";
+  document.getElementById("missing").textContent = data.missing.join(", ") || "None!";
+  document.getElementById("roadmap").innerHTML =
+    data.roadmap.map(s => `<li>${s}</li>`).join("") || "<li>Nothing to learn 🎉</li>";
+  document.getElementById("result").style.display = "block";
+});
+</script>
+{% endblock %}
